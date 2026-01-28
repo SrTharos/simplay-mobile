@@ -1,0 +1,80 @@
+{
+  "name": "SimPlay Mobile - Main Branch Protection",
+  "description": "Comprehensive ruleset for protecting the main branch of SimPlay Mobile",
+  "type": "branch",
+  "creation_node_id": "MDQ6VXNlcjE=",
+  "rules": [
+    {
+      "type": "creation",
+      "parameters": {}
+    },
+    {
+      "type": "update",
+      "parameters": {}
+    },
+    {
+      "type": "deletion",
+      "parameters": {}
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "required_status_checks": [
+          {
+            "context": "build",
+            "integration_id": null
+          },
+          {
+            "context": "lint",
+            "integration_id": null
+          },
+          {
+            "context": "test",
+            "integration_id": null
+          }
+        ]
+      }
+    },
+    {
+      "type": "required_pull_request_reviews",
+      "parameters": {
+        "dismiss_stale_reviews_on_push": true,
+        "require_code_owner_reviews": false,
+        "require_last_push_approval": false,
+        "required_approving_review_count": 1,
+        "required_review_thread_resolution": true
+      }
+    },
+    {
+      "type": "non_fast_forward",
+      "parameters": {}
+    },
+    {
+      "type": "commit_message_pattern",
+      "parameters": {
+        "operator": "starts_with",
+        "pattern": "^(feat|fix|docs|style|refactor|perf|test|chore|ci):",
+        "negate": false
+      }
+    },
+    {
+      "type": "commit_author_email_pattern",
+      "parameters": {
+        "operator": "contains",
+        "pattern": "@",
+        "negate": false
+      }
+    }
+  ],
+  "conditions": {
+    "ref_name": {
+      "include": [
+        "refs/heads/main"
+      ],
+      "exclude": []
+    }
+  },
+  "enforcement": "active",
+  "bypass_actors": []
+}
