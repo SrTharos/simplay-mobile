@@ -1,6 +1,7 @@
 import { Text, View, Pressable, ScrollView, Alert, StyleSheet } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { usePlayer } from "@/hooks/use-player";
+import { useMetadataExtractor } from "@/hooks/use-metadata-extractor";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useColors } from "@/hooks/use-colors";
 import * as DocumentPicker from "expo-document-picker";
@@ -27,6 +28,7 @@ const styles = StyleSheet.create({
 export default function MenuScreen() {
   const colors = useColors();
   const { songs, addSongs, clearAll } = usePlayer();
+  const { extractBatchMetadata } = useMetadataExtractor();
   const [loading, setLoading] = useState(false);
 
   const handleAddMusic = async () => {
@@ -51,7 +53,7 @@ export default function MenuScreen() {
       if (result.assets && result.assets.length > 0) {
         console.log(`${result.assets.length} arquivo(s) selecionado(s)`);
         
-        const newSongs = result.assets.map((asset: any, index: number) => {
+        let newSongs: any[] = result.assets.map((asset: any, index: number) => {
           const title = asset.name ? asset.name.replace(/\.[^/.]+$/, "") : `Música ${index + 1}`;
           return {
             id: `song_${Date.now()}_${index}`,
@@ -65,7 +67,9 @@ export default function MenuScreen() {
           };
         });
 
-        console.log("Adicionando músicas:", newSongs);
+        console.log("Extraindo metadados das músicas...");
+        newSongs = await extractBatchMetadata(newSongs);
+        console.log("Adicionando músicas com metadados:", newSongs);
         await addSongs(newSongs);
         
         Alert.alert(

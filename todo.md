@@ -102,3 +102,13 @@
 - [x] Importação de músicas não funciona no Android - Corrigido: Melhorado DocumentPicker com melhor tratamento de erros
 - [x] Verificar permissões de arquivo no Android - Adicionadas READ_EXTERNAL_STORAGE, READ_MEDIA_AUDIO, MANAGE_EXTERNAL_STORAGE
 - [x] Testar DocumentPicker no Android - Adicionado logging e tratamento de canceled
+
+
+## Feature: Leitura de Tags ID3
+
+- [x] Implementar leitura de metadados ID3 (título, artista, álbum)
+- [x] Extrair capa do álbum das tags ID3
+- [x] Exibir metadados na tela do player
+- [ ] Exibir capa do álbum como avatar no player (em desenvolvimento)
+- [x] Atualizar playlist com metadados corretos
+- [x] Fallback para nome do arquivo se metadados não disponíveis

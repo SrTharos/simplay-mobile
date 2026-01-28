@@ -49,11 +49,26 @@ export default function HomeScreen() {
               <Text className="text-2xl font-bold text-foreground text-center">
                 {currentSong?.title || "Nenhuma música"}
               </Text>
-              <Text className="text-sm text-muted text-center">
-                {currentSong
-                  ? `Música ${playbackState.currentIndex + 1} de ${songs.length}`
-                  : "SimPlay-O • Simple Player Offline"}
-              </Text>
+              {currentSong?.artist && (
+                <Text className="text-base text-primary text-center">
+                  {currentSong.artist}
+                </Text>
+              )}
+              {currentSong?.album && (
+                <Text className="text-sm text-muted text-center">
+                  {currentSong.album}
+                </Text>
+              )}
+              {!currentSong?.artist && !currentSong?.album && currentSong && (
+                <Text className="text-sm text-muted text-center">
+                  Música {playbackState.currentIndex + 1} de {songs.length}
+                </Text>
+              )}
+              {!currentSong && (
+                <Text className="text-sm text-muted text-center">
+                  SimPlay-O • Simple Player Offline
+                </Text>
+              )}
             </View>
           </View>
 

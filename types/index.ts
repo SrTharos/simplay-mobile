@@ -11,6 +11,11 @@ export interface Song {
   uri: string; // Local file URI
   added: string; // ISO date string
   lastPlayed: string | null; // ISO date string
+  // Metadados ID3
+  artist?: string;
+  album?: string;
+  albumArt?: string; // Base64 ou URI da imagem
+  duration?: number; // Duração em segundos
 }
 
 export interface PlaybackState {
