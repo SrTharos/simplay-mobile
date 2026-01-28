@@ -94,3 +94,11 @@
 - [ ] Criar checkpoint final
 - [ ] Documentar instruções de build
 - [ ] Preparar para publicação em App Stores
+
+
+## Bugs Reportados
+
+- [x] Menu não responde no Android (botões não funcionam) - Corrigido: Pressable com style em vez de className
+- [x] Importação de músicas não funciona no Android - Corrigido: Melhorado DocumentPicker com melhor tratamento de erros
+- [x] Verificar permissões de arquivo no Android - Adicionadas READ_EXTERNAL_STORAGE, READ_MEDIA_AUDIO, MANAGE_EXTERNAL_STORAGE
+- [x] Testar DocumentPicker no Android - Adicionado logging e tratamento de canceled

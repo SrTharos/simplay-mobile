@@ -1,34 +1,74 @@
-import { Text, View, Pressable, ScrollView, Alert } from "react-native";
+import { Text, View, Pressable, ScrollView, Alert, StyleSheet } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { usePlayer } from "@/hooks/use-player";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useColors } from "@/hooks/use-colors";
 import * as DocumentPicker from "expo-document-picker";
+import { useState } from "react";
+
+const styles = StyleSheet.create({
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+    borderWidth: 1,
+  },
+  menuItemText: {
+    fontSize: 16,
+    fontWeight: "500",
+    flex: 1,
+    marginHorizontal: 16,
+  },
+  pressedOpacity: 0.7 as any,
+});
 
 export default function MenuScreen() {
   const colors = useColors();
   const { songs, addSongs, clearAll } = usePlayer();
+  const [loading, setLoading] = useState(false);
 
   const handleAddMusic = async () => {
+    if (loading) return;
+    
     try {
+      setLoading(true);
+      console.log("Abrindo seletor de documentos...");
+      
       const result = await DocumentPicker.getDocumentAsync({
         type: "audio/*",
         multiple: true,
       });
 
-      if (result.assets && result.assets.length > 0) {
-        const newSongs = result.assets.map((asset: any, index: number) => ({
-          id: `song_${Date.now()}_${index}`,
-          title: asset.name.replace(/\.[^/.]+$/, ""),
-          filename: asset.name,
-          type: asset.mimeType || "audio/mpeg",
-          size: asset.size || 0,
-          uri: asset.uri,
-          added: new Date().toISOString(),
-          lastPlayed: null,
-        }));
+      console.log("Resultado do DocumentPicker:", result);
 
+      if (result.canceled) {
+        console.log("Seleção cancelada pelo usuário");
+        return;
+      }
+
+      if (result.assets && result.assets.length > 0) {
+        console.log(`${result.assets.length} arquivo(s) selecionado(s)`);
+        
+        const newSongs = result.assets.map((asset: any, index: number) => {
+          const title = asset.name ? asset.name.replace(/\.[^/.]+$/, "") : `Música ${index + 1}`;
+          return {
+            id: `song_${Date.now()}_${index}`,
+            title: title,
+            filename: asset.name || `audio_${index}`,
+            type: asset.mimeType || "audio/mpeg",
+            size: asset.size || 0,
+            uri: asset.uri,
+            added: new Date().toISOString(),
+            lastPlayed: null,
+          };
+        });
+
+        console.log("Adicionando músicas:", newSongs);
         await addSongs(newSongs);
+        
         Alert.alert(
           "Sucesso",
           `${newSongs.length} música${newSongs.length !== 1 ? "s" : ""} adicionada${newSongs.length !== 1 ? "s" : ""}!`
@@ -36,11 +76,21 @@ export default function MenuScreen() {
       }
     } catch (error) {
       console.error("Erro ao adicionar música:", error);
-      Alert.alert("Erro", "Não foi possível adicionar a música");
+      Alert.alert(
+        "Erro",
+        `Não foi possível adicionar a música: ${error instanceof Error ? error.message : String(error)}`
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleClearAll = () => {
+    if (songs.length === 0) {
+      Alert.alert("Playlist vazia", "Não há músicas para remover");
+      return;
+    }
+
     Alert.alert(
       "Limpar Tudo",
       `Tem certeza que deseja remover todas as ${songs.length} música${songs.length !== 1 ? "s" : ""}?`,
@@ -49,7 +99,10 @@ export default function MenuScreen() {
         {
           text: "Limpar",
           style: "destructive",
-          onPress: () => clearAll(),
+          onPress: () => {
+            clearAll();
+            Alert.alert("Sucesso", "Playlist limpa");
+          },
         },
       ]
     );
@@ -60,60 +113,78 @@ export default function MenuScreen() {
     label,
     onPress,
     danger = false,
+    disabled = false,
   }: {
     icon: string;
     label: string;
     onPress: () => void;
     danger?: boolean;
-  }) => (
-    <Pressable
-      onPress={onPress}
-      className={`flex-row items-center gap-4 p-4 rounded-lg border border-border mb-3 ${
-        danger ? "bg-error bg-opacity-5 border-error" : "bg-surface"
-      }`}
-    >
-      <MaterialIcons
-        name={icon as any}
-        size={24}
-        color={danger ? colors.error : colors.primary}
-      />
-      <Text
-        className={`text-base font-medium flex-1 ${
-          danger ? "text-error" : "text-foreground"
-        }`}
+    disabled?: boolean;
+  }) => {
+    const backgroundColor = danger ? colors.error : colors.surface;
+    const textColor = danger ? colors.error : colors.foreground;
+    const iconColor = danger ? colors.error : colors.primary;
+    const borderColor = danger ? colors.error : colors.border;
+
+    return (
+      <Pressable
+        onPress={onPress}
+        disabled={disabled}
+        style={({ pressed }) => [
+          styles.menuItem,
+          {
+            backgroundColor: backgroundColor,
+            borderColor: borderColor,
+            opacity: pressed && !disabled ? styles.pressedOpacity : 1,
+          } as any,
+        ]}
       >
-        {label}
-      </Text>
-      <MaterialIcons
-        name="chevron-right"
-        size={24}
-        color={danger ? colors.error : colors.muted}
-      />
-    </Pressable>
-  );
+        <MaterialIcons name={icon as any} size={24} color={iconColor} />
+            <Text style={[styles.menuItemText, { color: textColor } as any]}>
+          {label}
+        </Text>
+        <MaterialIcons
+          name="chevron-right"
+          size={24}
+          color={danger ? colors.error : colors.muted}
+        />
+      </Pressable>
+    );
+  };
 
   return (
     <ScreenContainer className="bg-background">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View className="p-4 gap-4">
+        <View style={{ padding: 16, gap: 16 }}>
           {/* Cabeçalho */}
-          <View className="mb-4">
-            <Text className="text-2xl font-bold text-foreground">Menu</Text>
-            <Text className="text-sm text-muted mt-1">
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{ fontSize: 28, fontWeight: "bold", color: colors.foreground }}>
+              Menu
+            </Text>
+            <Text style={{ fontSize: 14, color: colors.muted, marginTop: 4 }}>
               Gerencie sua playlist e configurações
             </Text>
           </View>
 
           {/* Seção Principal */}
           <View>
-            <Text className="text-xs font-semibold text-muted uppercase mb-3">
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: "600",
+                color: colors.muted,
+                textTransform: "uppercase",
+                marginBottom: 12,
+              }}
+            >
               Gerenciamento
             </Text>
 
             <MenuItem
               icon="add-circle-outline"
-              label="Adicionar Músicas"
+              label={loading ? "Carregando..." : "Adicionar Músicas"}
               onPress={handleAddMusic}
+              disabled={loading}
             />
 
             <MenuItem
@@ -125,6 +196,7 @@ export default function MenuScreen() {
                   "Esta funcionalidade será implementada em breve"
                 )
               }
+              disabled={songs.length === 0}
             />
 
             <MenuItem
@@ -136,6 +208,7 @@ export default function MenuScreen() {
                   "Esta funcionalidade será implementada em breve"
                 )
               }
+              disabled={songs.length === 0}
             />
 
             <MenuItem
@@ -151,8 +224,16 @@ export default function MenuScreen() {
           </View>
 
           {/* Seção Perigosa */}
-          <View className="mt-4">
-            <Text className="text-xs font-semibold text-muted uppercase mb-3">
+          <View style={{ marginTop: 16 }}>
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: "600",
+                color: colors.muted,
+                textTransform: "uppercase",
+                marginBottom: 12,
+              }}
+            >
               Ações Destrutivas
             </Text>
 
@@ -161,35 +242,60 @@ export default function MenuScreen() {
               label={`Limpar Tudo (${songs.length})`}
               onPress={handleClearAll}
               danger={true}
+              disabled={songs.length === 0}
             />
           </View>
 
           {/* Informações */}
-          <View className="mt-8 pt-4 border-t border-border">
-            <Text className="text-xs font-semibold text-muted uppercase mb-3">
+          <View style={{ marginTop: 32, paddingTop: 16, borderTopWidth: 1, borderTopColor: colors.border }}>
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: "600",
+                color: colors.muted,
+                textTransform: "uppercase",
+                marginBottom: 12,
+              }}
+            >
               Sobre
             </Text>
 
-            <View className="bg-surface rounded-lg p-4 gap-2">
-              <View className="flex-row justify-between">
-                <Text className="text-sm text-muted">App</Text>
-                <Text className="text-sm font-semibold text-foreground">
+            <View
+              style={{
+                backgroundColor: colors.surface,
+                borderRadius: 8,
+                padding: 16,
+                gap: 8,
+              }}
+            >
+              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                <Text style={{ fontSize: 14, color: colors.muted }}>App</Text>
+                <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground }}>
                   SimPlay Mobile
                 </Text>
               </View>
-              <View className="flex-row justify-between">
-                <Text className="text-sm text-muted">Versão</Text>
-                <Text className="text-sm font-semibold text-foreground">1.0.0</Text>
+              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                <Text style={{ fontSize: 14, color: colors.muted }}>Versão</Text>
+                <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground }}>
+                  1.0.0
+                </Text>
               </View>
-              <View className="flex-row justify-between">
-                <Text className="text-sm text-muted">Músicas</Text>
-                <Text className="text-sm font-semibold text-foreground">
+              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                <Text style={{ fontSize: 14, color: colors.muted }}>Músicas</Text>
+                <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground }}>
                   {songs.length}
                 </Text>
               </View>
             </View>
 
-            <Text className="text-xs text-muted text-center mt-6">
+            <Text
+              style={{
+                fontSize: 12,
+                color: colors.muted,
+                textAlign: "center",
+                marginTop: 24,
+              }}
+            >
               Simple Player Offline • Reprodutor de Áudio Local
             </Text>
           </View>
