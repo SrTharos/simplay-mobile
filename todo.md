@@ -156,3 +156,10 @@
 - [x] Menu não funciona - Corrigido: Adicionados imports faltantes (View, Text, Pressable, etc)
 - [x] Versão errada - Corrigido: Atualizado app.config.ts para 1.0.2
 - [x] Alterações não empacotadas - Será resolvido com checkpoint
+
+
+## Bugs Críticos - Versão Atual
+
+- [x] Menu não funciona - Corrigido: Redesenhado com três pontinhos (⋯) no canto superior direito
+- [x] Versão continua errada - Corrigido: Confirmado v1.0.2 no app.config.ts
+- [x] Ícones flat em vez de texto - Corrigido: Novo design com ícones (add-circle, delete, info, music-note)

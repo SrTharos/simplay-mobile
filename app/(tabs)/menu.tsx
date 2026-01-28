@@ -1,4 +1,4 @@
-import { Text, View, Pressable, ScrollView, Alert, StyleSheet } from "react-native";
+import { Text, View, Pressable, ScrollView, Alert, StyleSheet, Modal } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { usePlayer } from "@/hooks/use-player";
 import { useMetadataExtractor } from "@/hooks/use-metadata-extractor";
@@ -7,35 +7,19 @@ import { useColors } from "@/hooks/use-colors";
 import * as DocumentPicker from "expo-document-picker";
 import { useState } from "react";
 
-const styles = StyleSheet.create({
-  menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginBottom: 12,
-    borderWidth: 1,
-  },
-  menuItemText: {
-    fontSize: 16,
-    fontWeight: "500",
-    flex: 1,
-    marginHorizontal: 16,
-  },
-});
-
 export default function MenuScreen() {
   const colors = useColors();
   const { songs, addSongs, clearAll } = usePlayer();
   const { extractBatchMetadata } = useMetadataExtractor();
   const [loading, setLoading] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   const handleAddMusic = async () => {
     if (loading) return;
     
     try {
       setLoading(true);
+      setShowMenu(false);
       console.log("Abrindo seletor de documentos...");
       
       const result = await DocumentPicker.getDocumentAsync({
@@ -89,6 +73,8 @@ export default function MenuScreen() {
   };
 
   const handleClearAll = () => {
+    setShowMenu(false);
+    
     if (songs.length === 0) {
       Alert.alert("Playlist vazia", "Não há músicas para remover");
       return;
@@ -98,212 +84,213 @@ export default function MenuScreen() {
       "Limpar Tudo",
       `Tem certeza que deseja remover todas as ${songs.length} música${songs.length !== 1 ? "s" : ""}?`,
       [
-        { text: "Cancelar", style: "cancel" },
+        { text: "Cancelar", onPress: () => {}, style: "cancel" },
         {
-          text: "Limpar",
-          style: "destructive",
-          onPress: () => {
-            clearAll();
-            Alert.alert("Sucesso", "Playlist limpa");
+          text: "Remover",
+          onPress: async () => {
+            await clearAll();
+            Alert.alert("Sucesso", "Playlist limpa!");
           },
+          style: "destructive",
         },
       ]
     );
   };
 
-  const MenuItem = ({
-    icon,
-    label,
-    onPress,
-    danger = false,
-    disabled = false,
-  }: {
-    icon: string;
-    label: string;
-    onPress: () => void;
-    danger?: boolean;
-    disabled?: boolean;
-  }) => {
-    const backgroundColor = danger ? colors.error : colors.surface;
-    const textColor = danger ? colors.error : colors.foreground;
-    const iconColor = danger ? colors.error : colors.primary;
-    const borderColor = danger ? colors.error : colors.border;
-
-    return (
-      <Pressable
-        onPress={onPress}
-        disabled={disabled}
-        style={({ pressed }) => [
-          styles.menuItem,
-          {
-            backgroundColor: backgroundColor,
-            borderColor: borderColor,
-            opacity: pressed && !disabled ? 0.7 : 1,
-          } as any,
-        ]}
-      >
-        <MaterialIcons name={icon as any} size={24} color={iconColor} />
-            <Text style={[styles.menuItemText, { color: textColor } as any]}>
-          {label}
-        </Text>
-        <MaterialIcons
-          name="chevron-right"
-          size={24}
-          color={danger ? colors.error : colors.muted}
-        />
-      </Pressable>
-    );
-  };
-
   return (
     <ScreenContainer className="bg-background">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View style={{ padding: 16, gap: 16 }}>
-          {/* Cabeçalho */}
-          <View style={{ marginBottom: 16 }}>
-            <Text style={{ fontSize: 28, fontWeight: "bold", color: colors.foreground }}>
-              Menu
-            </Text>
-            <Text style={{ fontSize: 14, color: colors.muted, marginTop: 4 }}>
-              Gerencie sua playlist e configurações
-            </Text>
-          </View>
+      {/* Cabeçalho com Menu */}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "700",
+            color: colors.foreground,
+          }}
+        >
+          Menu
+        </Text>
 
-          {/* Seção Principal */}
-          <View>
-            <Text
-              style={{
-                fontSize: 12,
-                fontWeight: "600",
-                color: colors.muted,
-                textTransform: "uppercase",
-                marginBottom: 12,
-              }}
-            >
-              Gerenciamento
-            </Text>
+        {/* Botão de Menu (Três Pontinhos) */}
+        <Pressable
+          onPress={() => setShowMenu(true)}
+          style={{
+            padding: 8,
+            borderRadius: 8,
+          }}
+        >
+          <MaterialIcons name="more-vert" size={24} color={colors.foreground} />
+        </Pressable>
+      </View>
 
-            <MenuItem
-              icon="add-circle-outline"
-              label={loading ? "Carregando..." : "Adicionar Músicas"}
-              onPress={handleAddMusic}
-              disabled={loading}
-            />
-
-            <MenuItem
-              icon="download"
-              label="Exportar Playlist (JSON)"
-              onPress={() =>
-                Alert.alert(
-                  "Em desenvolvimento",
-                  "Esta funcionalidade será implementada em breve"
-                )
-              }
-              disabled={songs.length === 0}
-            />
-
-            <MenuItem
-              icon="download"
-              label="Exportar Playlist (M3U)"
-              onPress={() =>
-                Alert.alert(
-                  "Em desenvolvimento",
-                  "Esta funcionalidade será implementada em breve"
-                )
-              }
-              disabled={songs.length === 0}
-            />
-
-            <MenuItem
-              icon="upload"
-              label="Importar Playlist"
-              onPress={() =>
-                Alert.alert(
-                  "Em desenvolvimento",
-                  "Esta funcionalidade será implementada em breve"
-                )
-              }
-            />
-          </View>
-
-          {/* Seção Perigosa */}
-          <View style={{ marginTop: 16 }}>
-            <Text
-              style={{
-                fontSize: 12,
-                fontWeight: "600",
-                color: colors.muted,
-                textTransform: "uppercase",
-                marginBottom: 12,
-              }}
-            >
-              Ações Destrutivas
-            </Text>
-
-            <MenuItem
-              icon="delete-outline"
-              label={`Limpar Tudo (${songs.length})`}
-              onPress={handleClearAll}
-              danger={true}
-              disabled={songs.length === 0}
-            />
-          </View>
-
-          {/* Informações */}
-          <View style={{ marginTop: 32, paddingTop: 16, borderTopWidth: 1, borderTopColor: colors.border }}>
-            <Text
-              style={{
-                fontSize: 12,
-                fontWeight: "600",
-                color: colors.muted,
-                textTransform: "uppercase",
-                marginBottom: 12,
-              }}
-            >
-              Sobre
-            </Text>
-
-            <View
-              style={{
-                backgroundColor: colors.surface,
-                borderRadius: 8,
-                padding: 16,
-                gap: 8,
-              }}
-            >
-              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                <Text style={{ fontSize: 14, color: colors.muted }}>App</Text>
-                <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground }}>
-                  SimPlay Mobile
-                </Text>
-              </View>
-              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                <Text style={{ fontSize: 14, color: colors.muted }}>Versão</Text>
-                <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground }}>
-                  1.0.0
-                </Text>
-              </View>
-              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                <Text style={{ fontSize: 14, color: colors.muted }}>Músicas</Text>
-                <Text style={{ fontSize: 14, fontWeight: "600", color: colors.foreground }}>
-                  {songs.length}
-                </Text>
-              </View>
+      {/* Conteúdo Principal */}
+      <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 16 }}>
+        <View style={{ gap: 16 }}>
+          {/* Informações da Playlist */}
+          <View
+            style={{
+              backgroundColor: colors.surface,
+              borderRadius: 12,
+              padding: 16,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 12 }}>
+              <MaterialIcons name="music-note" size={28} color={colors.primary} />
+              <Text style={{ fontSize: 16, fontWeight: "600", color: colors.foreground }}>
+                Sua Playlist
+              </Text>
             </View>
+            <Text style={{ fontSize: 14, color: colors.muted, marginBottom: 8 }}>
+              Total de músicas: <Text style={{ fontWeight: "700", color: colors.foreground }}>{songs.length}</Text>
+            </Text>
+            <Text style={{ fontSize: 12, color: colors.muted }}>
+              Toque no menu (⋯) para adicionar ou limpar
+            </Text>
+          </View>
 
-            <Text
-              style={{
-                fontSize: 12,
-                color: colors.muted,
-                textAlign: "center",
-                marginTop: 24,
-              }}
-            >
-              Simple Player Offline • Reprodutor de Áudio Local
+          {/* Dicas de Uso */}
+          <View
+            style={{
+              backgroundColor: colors.surface,
+              borderRadius: 12,
+              padding: 16,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 12 }}>
+              <MaterialIcons name="info" size={24} color={colors.primary} />
+              <Text style={{ fontSize: 16, fontWeight: "600", color: colors.foreground }}>
+                Dicas
+              </Text>
+            </View>
+            <Text style={{ fontSize: 13, color: colors.muted, lineHeight: 20 }}>
+              • Use o menu (⋯) para adicionar músicas{"\n"}
+              • Selecione múltiplos arquivos de uma vez{"\n"}
+              • Vá para a aba "Playlist" para gerenciar{"\n"}
+              • Use "Player" para ouvir suas músicas
+            </Text>
+          </View>
+
+          {/* Versão do App */}
+          <View
+            style={{
+              backgroundColor: colors.surface,
+              borderRadius: 12,
+              padding: 16,
+              borderWidth: 1,
+              borderColor: colors.border,
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ fontSize: 12, color: colors.muted, marginBottom: 4 }}>
+              SimPlay Mobile
+            </Text>
+            <Text style={{ fontSize: 14, fontWeight: "700", color: colors.foreground }}>
+              v1.0.2
+            </Text>
+            <Text style={{ fontSize: 11, color: colors.muted, marginTop: 4 }}>
+              Simple Player Offline
             </Text>
           </View>
         </View>
       </ScrollView>
+
+      {/* Modal do Menu Dropdown */}
+      <Modal
+        visible={showMenu}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowMenu(false)}
+      >
+        <Pressable
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            justifyContent: "flex-start",
+            paddingTop: 60,
+          }}
+          onPress={() => setShowMenu(false)}
+        >
+          <Pressable
+            style={{
+              backgroundColor: colors.surface,
+              marginHorizontal: 12,
+              borderRadius: 12,
+              overflow: "hidden",
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+            onPress={(e) => e.stopPropagation()}
+          >
+            {/* Opção: Adicionar Músicas */}
+            <Pressable
+              onPress={handleAddMusic}
+              disabled={loading}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                borderBottomWidth: 1,
+                borderBottomColor: colors.border,
+                opacity: loading ? 0.6 : 1,
+              }}
+            >
+              <MaterialIcons name="add-circle" size={24} color={colors.primary} />
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: "500",
+                  color: colors.foreground,
+                  marginLeft: 12,
+                  flex: 1,
+                }}
+              >
+                {loading ? "Adicionando..." : "Adicionar Músicas"}
+              </Text>
+            </Pressable>
+
+            {/* Opção: Limpar Tudo */}
+            <Pressable
+              onPress={handleClearAll}
+              disabled={songs.length === 0}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                opacity: songs.length === 0 ? 0.5 : 1,
+              }}
+            >
+              <MaterialIcons name="delete" size={24} color={colors.error} />
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: "500",
+                  color: songs.length === 0 ? colors.muted : colors.error,
+                  marginLeft: 12,
+                  flex: 1,
+                }}
+              >
+                Limpar Tudo
+              </Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </ScreenContainer>
   );
 }
