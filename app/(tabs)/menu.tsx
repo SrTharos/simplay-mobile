@@ -22,7 +22,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 16,
   },
-  pressedOpacity: 0.7 as any,
 });
 
 export default function MenuScreen() {
@@ -135,7 +134,7 @@ export default function MenuScreen() {
           {
             backgroundColor: backgroundColor,
             borderColor: borderColor,
-            opacity: pressed && !disabled ? styles.pressedOpacity : 1,
+            opacity: pressed && !disabled ? 0.7 : 1,
           } as any,
         ]}
       >
