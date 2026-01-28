@@ -149,3 +149,10 @@
 - Sem propagandas ou código oculto
 - Otimizado para uso offline
 - Design limpo e intuitivo
+
+## Bugs Reportados - v1.0.01 (Testes em Produção)
+
+- [x] Speed Control muito grande - Corrigido: Convertido para botão compacto no canto com modal
+- [x] Menu não funciona - Corrigido: Adicionados imports faltantes (View, Text, Pressable, etc)
+- [x] Versão errada - Corrigido: Atualizado app.config.ts para 1.0.01
+- [x] Alterações não empacotadas - Será resolvido com checkpoint

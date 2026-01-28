@@ -175,12 +175,6 @@ export default function HomeScreen() {
               </Text>
             )}
 
-            {/* Controle de Velocidade */}
-            <SpeedControl
-              currentSpeed={playbackSpeed}
-              onSpeedChange={changeSpeed}
-            />
-
             {/* Botão de Editar Letras */}
             {currentSong && (
               <Pressable
@@ -224,6 +218,12 @@ export default function HomeScreen() {
         onProcessLyrics={processLyrics}
         onMarkTime={markTime}
         onFinalize={() => {}}
+      />
+
+      {/* Botão de Controle de Velocidade (Overlay) */}
+      <SpeedControl
+        currentSpeed={playbackSpeed}
+        onSpeedChange={changeSpeed}
       />
     </ScreenContainer>
   );

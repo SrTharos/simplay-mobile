@@ -1,4 +1,5 @@
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, Modal } from 'react-native';
+import { useState } from 'react';
 import { useColors } from '@/hooks/use-colors';
 
 interface SpeedControlProps {
@@ -9,56 +10,128 @@ interface SpeedControlProps {
 const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
 /**
- * Componente para controlar a velocidade de reprodução
+ * Botão compacto de controle de velocidade com modal de seleção
  */
 export function SpeedControl({ currentSpeed, onSpeedChange }: SpeedControlProps) {
   const colors = useColors();
+  const [showModal, setShowModal] = useState(false);
 
   return (
-    <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
-      <Text
+    <>
+      {/* Botão compacto no canto */}
+      <Pressable
+        onPress={() => setShowModal(true)}
         style={{
-          color: colors.foreground,
-          fontWeight: '600',
-          marginBottom: 12,
-          fontSize: 14,
+          position: 'absolute',
+          bottom: 16,
+          right: 16,
+          width: 50,
+          height: 50,
+          borderRadius: 25,
+          backgroundColor: colors.primary,
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 10,
+          elevation: 5,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.84,
         }}
       >
-        Velocidade: {currentSpeed}x
-      </Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: 8 }}
+        <Text
+          style={{
+            color: colors.background,
+            fontWeight: '700',
+            fontSize: 12,
+          }}
+        >
+          {currentSpeed}x
+        </Text>
+      </Pressable>
+
+      {/* Modal com opções de velocidade */}
+      <Modal
+        visible={showModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowModal(false)}
       >
-        {SPEED_OPTIONS.map((speed) => (
+        <Pressable
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          onPress={() => setShowModal(false)}
+        >
           <Pressable
-            key={speed}
-            onPress={() => onSpeedChange(speed)}
             style={{
-              paddingHorizontal: 14,
-              paddingVertical: 8,
-              borderRadius: 20,
-              backgroundColor:
-                currentSpeed === speed ? colors.primary : colors.surface,
-              borderWidth: 1,
-              borderColor:
-                currentSpeed === speed ? colors.primary : colors.border,
+              backgroundColor: colors.surface,
+              borderRadius: 12,
+              padding: 16,
+              width: '80%',
+              maxWidth: 300,
             }}
+            onPress={(e) => e.stopPropagation()}
           >
             <Text
               style={{
-                color:
-                  currentSpeed === speed ? colors.background : colors.foreground,
+                color: colors.foreground,
                 fontWeight: '600',
-                fontSize: 14,
+                fontSize: 16,
+                marginBottom: 16,
+                textAlign: 'center',
               }}
             >
-              {speed}x
+              Velocidade: {currentSpeed}x
             </Text>
+
+            <View
+              style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: 8,
+                justifyContent: 'center',
+              }}
+            >
+              {SPEED_OPTIONS.map((speed) => (
+                <Pressable
+                  key={speed}
+                  onPress={() => {
+                    onSpeedChange(speed);
+                    setShowModal(false);
+                  }}
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                    borderRadius: 8,
+                    backgroundColor:
+                      currentSpeed === speed ? colors.primary : colors.background,
+                    borderWidth: 1,
+                    borderColor:
+                      currentSpeed === speed ? colors.primary : colors.border,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color:
+                        currentSpeed === speed
+                          ? colors.background
+                          : colors.foreground,
+                      fontWeight: '600',
+                      fontSize: 12,
+                    }}
+                  >
+                    {speed}x
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
           </Pressable>
-        ))}
-      </ScrollView>
-    </View>
+        </Pressable>
+      </Modal>
+    </>
   );
 }
