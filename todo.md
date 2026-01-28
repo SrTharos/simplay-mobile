@@ -114,7 +114,7 @@
 - [x] Fallback para nome do arquivo se metadados não disponíveis
 
 
-## Passos Implementados (v1.0.01)
+## Passos Implementados (v1.0.2)
 
 - [x] Passo A: Sistema de Favoritos com ❤️ e persistência
 - [x] Passo B: Controle de Velocidade (0.5x a 2x)
@@ -150,9 +150,9 @@
 - Otimizado para uso offline
 - Design limpo e intuitivo
 
-## Bugs Reportados - v1.0.01 (Testes em Produção)
+## Bugs Reportados - v1.0.2 (Testes em Produção)
 
 - [x] Speed Control muito grande - Corrigido: Convertido para botão compacto no canto com modal
 - [x] Menu não funciona - Corrigido: Adicionados imports faltantes (View, Text, Pressable, etc)
-- [x] Versão errada - Corrigido: Atualizado app.config.ts para 1.0.01
+- [x] Versão errada - Corrigido: Atualizado app.config.ts para 1.0.2
 - [x] Alterações não empacotadas - Será resolvido com checkpoint
