@@ -4,10 +4,13 @@ import { usePlayer } from "@/hooks/use-player";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useColors } from "@/hooks/use-colors";
 import { cn } from "@/lib/utils";
+import { useFavorites } from "@/hooks/use-favorites";
+import { FavoriteButton } from "@/components/favorite-button";
 
 export default function PlaylistScreen() {
   const colors = useColors();
   const { songs, playbackState, play, removeSong } = usePlayer();
+  const { toggleFavorite, isFavorite } = useFavorites(songs);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 B";
@@ -82,6 +85,13 @@ export default function PlaylistScreen() {
             {formatFileSize(item.size)} • {formatDate(item.added)}
           </Text>
         </View>
+
+        {/* Botão de Favorito */}
+        <FavoriteButton
+          isFavorite={isFavorite(item.id)}
+          onPress={() => toggleFavorite(item.id)}
+          size={20}
+        />
 
         {/* Botão de Remover */}
         <Pressable

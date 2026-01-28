@@ -10,6 +10,7 @@ export function usePlayer() {
   const player = useAudioPlayer(null);
   const status = useAudioPlayerStatus(player);
   const [songs, setSongs] = useState<Song[]>([]);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [playbackState, setPlaybackState] = useState<PlaybackState>({
     currentIndex: 0,
     isPlaying: false,
@@ -232,6 +233,23 @@ export function usePlayer() {
     }
   }, [songs, playbackState, saveSongs, player]);
 
+  // Mudar velocidade de reprodução
+  const changeSpeed = useCallback(async (speed: number) => {
+    if (speed >= 0.5 && speed <= 2) {
+      try {
+        await player.setPlaybackRate(speed);
+        setPlaybackSpeed(speed);
+        // Salvar preferência
+        if (songs[playbackState.currentIndex]) {
+          const songId = songs[playbackState.currentIndex].id;
+          await AsyncStorage.setItem(`speed_${songId}`, speed.toString());
+        }
+      } catch (error) {
+        console.error('Erro ao mudar velocidade:', error);
+      }
+    }
+  }, [player, songs, playbackState]);
+
   // Limpar tudo
   const clearAll = useCallback(async () => {
     player.pause();
@@ -259,7 +277,7 @@ export function usePlayer() {
     ) {
       next();
     }
-  }, [status, playbackState, next]);
+  }, [status, playbackState, next, songs]);
 
   // Carregar músicas ao montar
   useEffect(() => {
@@ -282,5 +300,7 @@ export function usePlayer() {
     addSongs,
     removeSong,
     clearAll,
+    playbackSpeed,
+    changeSpeed,
   };
 }

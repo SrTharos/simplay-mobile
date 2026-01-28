@@ -4,9 +4,16 @@ import { usePlayer } from "@/hooks/use-player";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useColors } from "@/hooks/use-colors";
 import { cn } from "@/lib/utils";
+import { SpeedControl } from "@/components/speed-control";
+import { AnimatedProgressBar } from "@/components/animated-progress-bar";
+import { useLyricsSync } from "@/hooks/use-lyrics-sync";
+import { LyricsEditorModal } from "@/components/lyrics-editor-modal";
+import { LyricsDisplay } from "@/components/lyrics-display";
+import { useState } from "react";
 
 export default function HomeScreen() {
   const colors = useColors();
+  const [showLyricsEditor, setShowLyricsEditor] = useState(false);
   const {
     songs,
     playbackState,
@@ -18,7 +25,19 @@ export default function HomeScreen() {
     seek,
     toggleShuffle,
     toggleLoop,
+    playbackSpeed,
+    changeSpeed,
   } = usePlayer();
+
+  const currentSongId = songs[playbackState.currentIndex]?.id || 'default';
+  const {
+    lyricsData,
+    processLyrics,
+    markTime,
+    getDisplayLyrics,
+  } = useLyricsSync(currentSongId);
+
+  const displayLyrics = getDisplayLyrics(currentTime * 1000); // converter para ms
 
   const currentSong = songs[playbackState.currentIndex];
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -74,29 +93,13 @@ export default function HomeScreen() {
 
           {/* Seção Central - Controles */}
           <View className="gap-6">
-            {/* Barra de Progresso */}
-            <View className="gap-2">
-            <Pressable
-              onPress={(e: any) => {
-                if (duration > 0 && e.nativeEvent.locationX) {
-                  const percent = e.nativeEvent.locationX / 300; // Aproximado
-                  seek(Math.max(0, Math.min(1, percent)) * duration);
-                }
-              }}
-              className="h-1 bg-border rounded-full overflow-hidden"
-            >
-                <View
-                  className="h-full bg-primary"
-                  style={{ width: `${progress}%` }}
-                />
-              </Pressable>
-
-              {/* Tempo */}
-              <View className="flex-row justify-between">
-                <Text className="text-xs text-muted">{formatTime(currentTime)}</Text>
-                <Text className="text-xs text-muted">{formatTime(duration)}</Text>
-              </View>
-            </View>
+            {/* Visualizador de Áudio com Barra de Progresso */}
+            <AnimatedProgressBar
+              progress={progress}
+              currentTime={currentTime}
+              duration={duration}
+              onSeek={(percent) => seek((percent / 100) * duration)}
+            />
 
             {/* Botões de Controle */}
             <View className="flex-row justify-around items-center">
@@ -171,7 +174,35 @@ export default function HomeScreen() {
                 Repetindo playlist
               </Text>
             )}
+
+            {/* Controle de Velocidade */}
+            <SpeedControl
+              currentSpeed={playbackSpeed}
+              onSpeedChange={changeSpeed}
+            />
+
+            {/* Botão de Editar Letras */}
+            {currentSong && (
+              <Pressable
+                onPress={() => setShowLyricsEditor(true)}
+                className="bg-surface p-3 rounded-lg flex-row items-center justify-center gap-2 border border-border"
+              >
+                <MaterialIcons name="edit" size={20} color={colors.primary} />
+                <Text className="text-primary font-semibold">
+                  {lyricsData.isSynced ? "Ver Letras" : "Adicionar Letras"}
+                </Text>
+              </Pressable>
+            )}
           </View>
+
+          {/* Exibir Letras Sincronizadas */}
+          {lyricsData.isSynced && displayLyrics.current && (
+            <LyricsDisplay
+              previous={displayLyrics.previous}
+              current={displayLyrics.current}
+              next={displayLyrics.next}
+            />
+          )}
 
           {/* Seção Inferior - Contagem de Músicas */}
           <View className="items-center">
@@ -183,6 +214,17 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Modal de Editor de Letras */}
+      <LyricsEditorModal
+        visible={showLyricsEditor}
+        onClose={() => setShowLyricsEditor(false)}
+        lyricsData={lyricsData}
+        currentTime={currentTime}
+        onProcessLyrics={processLyrics}
+        onMarkTime={markTime}
+        onFinalize={() => {}}
+      />
     </ScreenContainer>
   );
 }

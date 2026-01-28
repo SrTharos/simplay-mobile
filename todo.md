@@ -112,3 +112,40 @@
 - [ ] Exibir capa do álbum como avatar no player (em desenvolvimento)
 - [x] Atualizar playlist com metadados corretos
 - [x] Fallback para nome do arquivo se metadados não disponíveis
+
+
+## Passos Implementados (v1.0.01)
+
+- [x] Passo A: Sistema de Favoritos com ❤️ e persistência
+- [x] Passo B: Controle de Velocidade (0.5x a 2x)
+- [x] Passo C: Histórico com Estatísticas (Top 5 mês, Top 10 ano)
+- [x] Passo D: Visualizador de Áudio na barra de progresso (50 barras animadas)
+- [x] Passo E: Sincronização de Letras com editor manual (2 páginas)
+- [x] Passo F: Tela de Estatísticas com logo do app
+
+## Resumo v1.0.01
+
+**Novas Funcionalidades:**
+- Sistema completo de favoritos com persistência
+- Controle de velocidade de reprodução
+- Histórico de reprodução com estatísticas
+- Visualizador de áudio animado na barra de progresso
+- Editor de letras com sincronização manual
+- Tela de estatísticas com Top 5 do mês e Top 10 do ano
+
+**Componentes Novos:**
+- `use-favorites.ts` - Hook de favoritos
+- `use-history.ts` - Hook de histórico
+- `use-lyrics-sync.ts` - Hook de sincronização de letras
+- `favorite-button.tsx` - Botão de favorito
+- `speed-control.tsx` - Controle de velocidade
+- `animated-progress-bar.tsx` - Visualizador de áudio
+- `lyrics-display.tsx` - Display de letras sincronizadas
+- `lyrics-editor-modal.tsx` - Modal de editor de letras
+- `app/(tabs)/stats.tsx` - Tela de estatísticas
+
+**Melhorias:**
+- Todas as funcionalidades com persistência de dados
+- Sem propagandas ou código oculto
+- Otimizado para uso offline
+- Design limpo e intuitivo
