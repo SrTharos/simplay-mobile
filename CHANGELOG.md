@@ -110,3 +110,21 @@ Este projeto é licenciado sob a SimPlay Mobile Open Source License - veja [LICE
 ## Agradecimentos
 
 Obrigado a todos os contribuidores e usuários que ajudam a melhorar o SimPlay Mobile! 🎵
+
+
+## [1.0.2] - 2026-01-28
+
+### 🐛 Corrigido
+- **Menu não funcionava no Android** - Redesenhado com três pontinhos (⋯) no canto superior direito
+- **Ícones flat** - Substituídos por ícones Material Icons para melhor UX
+- **Versão sincronizada** - Alinhado package.json com app.config.ts (ambos 1.0.2)
+- **Versionamento automático** - Criado arquivo VERSION e guia de troubleshooting
+
+### ✨ Adicionado
+- **Script de sincronização Codespace** - `sync-codespace.sh` para atualizar cache
+- **Guia de troubleshooting** - PUBLISH_TROUBLESHOOTING.md com 3 alternativas de publicação
+- **Documentação GitHub** - GITHUB_SETUP.md, MAKE_PUBLIC.md, RULESET_GUIDE.md
+- **README.md atualizado** - Documentação completa com todas as funcionalidades
+
+### 📦 Dependências
+- Nenhuma mudança em dependências

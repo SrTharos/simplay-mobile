@@ -163,3 +163,16 @@
 - [x] Menu não funciona - Corrigido: Redesenhado com três pontinhos (⋯) no canto superior direito
 - [x] Versão continua errada - Corrigido: Confirmado v1.0.2 no app.config.ts
 - [x] Ícones flat em vez de texto - Corrigido: Novo design com ícones (add-circle, delete, info, music-note)
+
+
+## Bug Crítico - Versionamento
+
+- [x] Versão aparece como 1.0.3 em vez de 1.0.2 - Corrigido: Sincronizado package.json com app.config.ts (ambos 1.0.2)
+
+
+## Bug Crítico - Sistema de Publicação Manus
+
+- [ ] Aba Publish incrementa versão automaticamente (1.0.2 → 1.0.3 → 1.0.4 sem compilar)
+- [ ] Versão não respeita configuração em app.config.ts e package.json
+- [ ] Publicação falha sem motivo claro
+- [ ] Necessário encontrar solução alternativa para versionamento
